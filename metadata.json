@@ -1,0 +1,6 @@
+{
+  "name": "Bukhara Restaurant",
+  "description": "Premium Afghan dining destination in Kabul, Afghanistan. Authentic Kabuli Pulao, Afghan Kebabs, Mantu, and international cuisine with warm hospitality.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
