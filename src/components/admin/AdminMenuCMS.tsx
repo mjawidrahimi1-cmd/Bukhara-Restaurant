@@ -18,6 +18,7 @@ import {
   Sparkles,
   X,
   Clock3,
+  Download,
 } from 'lucide-react';
 
 const SUGGESTED_DISH_IMAGES = [
@@ -215,6 +216,65 @@ export const AdminMenuCMS: React.FC = () => {
     }
   };
 
+  const handleExportCSV = () => {
+    const escapeCsvCell = (val: any): string => {
+      if (val === null || val === undefined) return '""';
+      const str = String(val).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+
+    const headers = [
+      'Item_ID',
+      'Name_English',
+      'Name_Dari',
+      'Name_Pashto',
+      'Price_AFN',
+      'Category_ID',
+      'Category_Name',
+      'Available_InStock',
+      'Is_Spicy',
+      'Is_Vegetarian',
+      'Is_Popular',
+      'Is_Chef_Choice',
+      'Serving_Size',
+      'Description_English',
+      'Image_URL',
+    ];
+
+    const rows = menuItems.map((item) => {
+      const cat = categories.find((c) => c.id === item.category);
+      return [
+        escapeCsvCell(item.id),
+        escapeCsvCell(item.nameEn),
+        escapeCsvCell(item.nameFa || ''),
+        escapeCsvCell(item.namePs || ''),
+        item.price,
+        escapeCsvCell(item.category),
+        escapeCsvCell(cat?.nameEn || item.category),
+        item.available ? 'YES' : 'NO',
+        item.dietary?.isSpicy ? 'YES' : 'NO',
+        item.dietary?.isVegetarian ? 'YES' : 'NO',
+        item.dietary?.isPopular ? 'YES' : 'NO',
+        item.dietary?.isChefChoice ? 'YES' : 'NO',
+        escapeCsvCell(item.servingSizeEn || '1-2 Persons'),
+        escapeCsvCell(item.descriptionEn || ''),
+        escapeCsvCell(item.image),
+      ].join(',');
+    });
+
+    const csvData = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `bukhara_menu_items_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showToast(`Exported ${menuItems.length} menu items to CSV`, 'success');
+  };
+
   return (
     <div className="space-y-6">
       {/* Top Header */}
@@ -234,6 +294,16 @@ export const AdminMenuCMS: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2.5 self-start md:self-auto">
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-stone-300 hover:border-stone-400 bg-stone-50 hover:bg-stone-100 text-stone-700 text-xs font-bold transition-all shadow-sm cursor-pointer"
+            title="Export all menu dishes as CSV"
+          >
+            <Download className="w-4 h-4 text-stone-600" />
+            <span>Export CSV</span>
+          </button>
+
           <button
             onClick={() => setIsCategoryModalOpen(true)}
             className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold transition-all border border-stone-300 cursor-pointer"

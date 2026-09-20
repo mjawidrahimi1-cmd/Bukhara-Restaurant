@@ -43,6 +43,7 @@ import {
   Sliders,
   Crown,
   ChefHat,
+  Database,
 } from 'lucide-react';
 import { AdminSecurityPassword } from './admin/AdminSecurityPassword';
 import { AdminBlogCMS } from './admin/AdminBlogCMS';
@@ -51,6 +52,7 @@ import { AdminBranchesCMS } from './admin/AdminBranchesCMS';
 import { AdminMenuCMS } from './admin/AdminMenuCMS';
 import { AdminSettingsCMS } from './admin/AdminSettingsCMS';
 import { AdminOffersReviewsCMS } from './admin/AdminOffersReviewsCMS';
+import { AdminBackupExportCMS } from './admin/AdminBackupExportCMS';
 
 export const AdminPanel: React.FC = () => {
   const {
@@ -100,7 +102,7 @@ export const AdminPanel: React.FC = () => {
 
   // Main Navigation Tabs (Full CMS & Operations)
   const [activeTab, setActiveTab] = useState<
-    'kds' | 'orders' | 'reservations' | 'menu' | 'branches' | 'blog' | 'gallery' | 'offers' | 'security' | 'settings'
+    'kds' | 'orders' | 'reservations' | 'menu' | 'branches' | 'blog' | 'gallery' | 'offers' | 'security' | 'settings' | 'backup'
   >('kds');
 
   // Branch filter across CMS
@@ -436,14 +438,18 @@ export const AdminPanel: React.FC = () => {
                   </select>
                 </div>
 
-                {/* Export Data Button */}
+                {/* Export Data / Backup Button */}
                 <button
-                  onClick={handleExportCSV}
-                  title="Export orders to CSV"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-stone-200 transition-all cursor-pointer"
+                  onClick={() => setActiveTab('backup')}
+                  title="Open Backup & Data Export Center"
+                  className={`hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                    activeTab === 'backup'
+                      ? 'bg-[#c5a059] text-[#0c342b]'
+                      : 'bg-white/10 hover:bg-white/20 text-stone-200'
+                  }`}
                 >
-                  <Download className="w-3.5 h-3.5 text-[#c5a059]" />
-                  <span>Export</span>
+                  <Database className="w-3.5 h-3.5 text-[#c5a059]" />
+                  <span>Backup &amp; Export</span>
                 </button>
 
                 {/* Lock Session */}
@@ -768,6 +774,24 @@ export const AdminPanel: React.FC = () => {
                   <Settings className={`w-4 h-4 ${activeTab === 'settings' ? 'text-[#c5a059]' : 'text-stone-500'}`} />
                   <span>Site Sections &amp; Hero</span>
                 </div>
+              </button>
+
+              {/* Tab 11: Data Backup & CSV/JSON Exporter */}
+              <button
+                onClick={() => setActiveTab('backup')}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all shrink-0 cursor-pointer ${
+                  activeTab === 'backup'
+                    ? 'bg-[#0c342b] text-white shadow-sm'
+                    : 'text-stone-700 hover:bg-stone-100'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Database className={`w-4 h-4 ${activeTab === 'backup' ? 'text-[#c5a059]' : 'text-stone-500'}`} />
+                  <span>Backup &amp; Export</span>
+                </div>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-bold">
+                  JSON / CSV
+                </span>
               </button>
 
               {/* Quick Summary Info Box */}
@@ -1373,6 +1397,11 @@ export const AdminPanel: React.FC = () => {
               {/* TAB 10: STOREFRONT, HERO & SECTION CMS                                    */}
               {/* ========================================================================= */}
               {activeTab === 'settings' && <AdminSettingsCMS userRole={userRole} />}
+
+              {/* ========================================================================= */}
+              {/* TAB 11: DATA BACKUP & CSV/JSON EXPORTER                                   */}
+              {/* ========================================================================= */}
+              {activeTab === 'backup' && <AdminBackupExportCMS userRole={userRole} />}
             </div>
           </div>
         )}

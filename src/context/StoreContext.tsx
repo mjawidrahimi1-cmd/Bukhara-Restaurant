@@ -118,6 +118,7 @@ interface StoreContextType {
   changeAdminPin: (currentPin: string, newPin: string) => { success: boolean; error?: string };
   changeManagerPin: (currentAdminPin: string, newManagerPin: string) => { success: boolean; error?: string };
   resetAllContentToDefault: () => void;
+  restoreAllDataBackup: (backupData: any) => { success: boolean; message: string };
 
   // Modals & Navigation States
   selectedMenuItem: MenuItem | null;
@@ -737,6 +738,64 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     return { success: true };
   };
 
+  const restoreAllDataBackup = (backupData: any): { success: boolean; message: string } => {
+    try {
+      if (!backupData || typeof backupData !== 'object') {
+        return { success: false, message: 'Invalid backup file structure.' };
+      }
+
+      if (Array.isArray(backupData.menuItems) && backupData.menuItems.length > 0) {
+        setMenuItems(backupData.menuItems);
+        localStorage.setItem('bukhara_menu', JSON.stringify(backupData.menuItems));
+      }
+
+      if (Array.isArray(backupData.categories) && backupData.categories.length > 0) {
+        setCategories(backupData.categories);
+        localStorage.setItem('bukhara_categories', JSON.stringify(backupData.categories));
+      }
+
+      if (Array.isArray(backupData.branches) && backupData.branches.length > 0) {
+        setBranches(backupData.branches);
+        localStorage.setItem('bukhara_branches', JSON.stringify(backupData.branches));
+      }
+
+      if (Array.isArray(backupData.offers) && backupData.offers.length > 0) {
+        setOffers(backupData.offers);
+        localStorage.setItem('bukhara_offers', JSON.stringify(backupData.offers));
+      }
+
+      if (Array.isArray(backupData.gallery) && backupData.gallery.length > 0) {
+        setGallery(backupData.gallery);
+        localStorage.setItem('bukhara_gallery', JSON.stringify(backupData.gallery));
+      }
+
+      if (Array.isArray(backupData.blogPosts) && backupData.blogPosts.length > 0) {
+        setBlogPosts(backupData.blogPosts);
+        localStorage.setItem('bukhara_blog', JSON.stringify(backupData.blogPosts));
+      }
+
+      if (Array.isArray(backupData.testimonials) && backupData.testimonials.length > 0) {
+        setTestimonials(backupData.testimonials);
+        localStorage.setItem('bukhara_testimonials', JSON.stringify(backupData.testimonials));
+      }
+
+      if (backupData.siteSettings && typeof backupData.siteSettings === 'object') {
+        const mergedSettings = {
+          ...siteSettings,
+          ...backupData.siteSettings,
+          adminPin: siteSettings.adminPin, // preserve current active admin PIN for security
+        };
+        setSiteSettings(mergedSettings);
+        localStorage.setItem('bukhara_settings', JSON.stringify(mergedSettings));
+      }
+
+      showToast('Website database & CMS data restored successfully!', 'success');
+      return { success: true, message: 'Backup restored successfully!' };
+    } catch (err: any) {
+      return { success: false, message: err?.message || 'Failed to parse backup data.' };
+    }
+  };
+
   const resetAllContentToDefault = () => {
     setMenuItems(initialMenuItems);
     setCategories(initialCategories);
@@ -823,6 +882,7 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         changeAdminPin,
         changeManagerPin,
         resetAllContentToDefault,
+        restoreAllDataBackup,
         selectedMenuItem,
         setSelectedMenuItem,
         isCartOpen,
